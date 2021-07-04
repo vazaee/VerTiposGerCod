@@ -18,13 +18,35 @@ _start:
 	MOVL %EDX, _a
 	PUSHL %EDX
 	POPL %EDX
-chegou
+	PUSHL _a
+	PUSHL _a
+	PUSHL $1
 	POPL %EBX
 	POPL %EAX
-	ADDL $1, %EAX
+	ADDL %EBX, %EAX
 	PUSHL %EAX
 	POPL %EDX
 	MOVL %EDX, _a
+	POPL %EDX
+	MOVL %EDX, _b
+	PUSHL %EDX
+	POPL %EDX
+	PUSHL _a
+	POPL %EDX
+	MOVL %EDX, _c
+	PUSHL %EDX
+	POPL %EDX
+	PUSHL _a
+	PUSHL $1
+	POPL %EBX
+	POPL %EAX
+	ADDL %EBX, %EAX
+	PUSHL %EAX
+	POPL %EDX
+	MOVL %EDX, _a
+	PUSHL %EDX
+	POPL %EDX
+	MOVL %EDX, _d
 	PUSHL %EDX
 	POPL %EDX
 	MOVL $_str_0Len, %EDX
@@ -45,6 +67,13 @@ chegou
 	MOVL $_str_2, %ECX
 	CALL _writeLit
 	PUSHL _c
+	POPL %EAX
+	CALL _write
+	CALL _writeln
+	MOVL $_str_3Len, %EDX
+	MOVL $_str_3, %ECX
+	CALL _writeLit
+	PUSHL _d
 	POPL %EAX
 	CALL _write
 	CALL _writeln
@@ -143,6 +172,7 @@ _fimread2:
 _a:	.zero 4
 _b:	.zero 4
 _c:	.zero 4
+_d:	.zero 4
 
 #
 # area de literais
@@ -154,11 +184,14 @@ __fim_msg:
 
 
 _str_0:
-	 .ascii " a (1) =  "
+	 .ascii " a (3) =  "
 _str_0Len = . - _str_0
 _str_1:
 	 .ascii " b (1) =  "
 _str_1Len = . - _str_1
 _str_2:
-	 .ascii " c (1) =  "
+	 .ascii " c (2) =  "
 _str_2Len = . - _str_2
+_str_3:
+	 .ascii " d (3) =  "
+_str_3Len = . - _str_3

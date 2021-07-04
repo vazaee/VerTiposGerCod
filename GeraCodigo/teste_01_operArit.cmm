@@ -1,13 +1,16 @@
 int a; 
 int b; 
 int c;
+int d;
 
 void main() {  
     a = b = c = 1;
-    a = ++c;
-    write (" a (1) =  ", a );
+    b = a++;
+    c = a;
+    d = ++a;
+    write (" a (3) =  ", a );
     write (" b (1) =  ", b );
-    write (" c (1) =  ", c );
-    
+    write (" c (2) =  ", c );
+    write (" d (3) =  ", d );
 }
 

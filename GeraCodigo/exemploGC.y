@@ -144,9 +144,21 @@ exp :  NUM  			{ System.out.println("\tPUSHL $"+$1); }
 							System.out.println("\tPUSHL %EDX"); 
 						} 
 	
-	| INC ID 			{	gcExpArit('i');    //i de INC
-							
+	| INC ID 			{	System.out.println("\tPUSHL _"+$2);
+							System.out.println("\tPUSHL $1");
+							gcExpArit('+');
+							System.out.println("\tPOPL %EDX");
+							System.out.println("\tMOVL %EDX, _"+$2);
+							System.out.println("\tPUSHL %EDX");
 						}
+
+	| ID INC  			{	System.out.println("\tPUSHL _"+$1);
+							System.out.println("\tPUSHL _"+$1);
+							System.out.println("\tPUSHL $1");
+							gcExpArit('+');
+							System.out.println("\tPOPL %EDX");
+							System.out.println("\tMOVL %EDX, _"+$1);
+	 					}
 
 	| ID ATR exp		{ 	gcExpArit('+');
 							System.out.println("\tPOPL %EDX");
@@ -172,7 +184,6 @@ exp :  NUM  			{ System.out.println("\tPUSHL $"+$1); }
 	| exp AND exp		{ gcExpLog(AND); }											
 	
 	;							
-
 
 %%
 
@@ -237,12 +248,11 @@ exp :  NUM  			{ System.out.println("\tPUSHL $"+$1); }
 
 							
 		void gcExpArit(int oparit) {
- 				System.out.println("\tPOPL %EBX");
+ 			System.out.println("\tPOPL %EBX");
    			System.out.println("\tPOPL %EAX");
 
    		switch (oparit) {
      		case '+' : System.out.println("\tADDL %EBX, %EAX" ); break;
-     		case 'i': System.out.println("\tADDL $1, %EAX" ); break;
      		case '-' : System.out.println("\tSUBL %EBX, %EAX" ); break;
      		case '*' : System.out.println("\tIMULL %EBX, %EAX" ); break;
 
