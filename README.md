@@ -1,4 +1,8 @@
-# VerTiposGerCod
+# Trabalho final da disciplina de Compiladores
+
+### Alunos: Gabriel Vaz, Márcio Góes, Matheus Zanon
+### Matriculas: 17111238, 16105078, 16105090
+### Email: {Gabriel.vaz, Marcio.goes, Matheus.zanon}@edu.pucrs.br
 
 O objetivo do projeto deste semestre será a consolidação dos conceitos de verificação de tipos e geração de código vistos ao longo da disciplina.
 
@@ -29,3 +33,25 @@ disponibilizados para o comando “for”.
 4. acrescentar o comando “for”
 5. Acrescentar geração de código para “structs”
 6. Acrescentar código para “arrays” e “array de structs”
+
+## Detalhes da implementação
+
+### Platoforma utiliza
+- SO Kali Linux
+
+### Compilação
+- make
+- ./run.x NOME_DO_ARQUIVO.cmm
+
+### Execução
+- ./NOME_DO_ARQUIVO
+
+### Implementação
+
+## Parte 1
+Da Parte 1 deste trabalho foram implementados todos os itens descritos acima e seus respectivos exemplos estão presentes no diretório "Semantico/exemplos".
+
+## Parte 2
+Da Parte 2 foram implementados corretamente os itens 1 e 2 e seus respectivos exemplos estão presentes no diretório "GeraCodigo/exemplos".
+
+Os itens 3 e 4 não foram finalizados 
