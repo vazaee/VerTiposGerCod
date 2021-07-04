@@ -19,118 +19,148 @@
 
 %%
 
-prog : { currClass = ClasseID.VarGlobal; } declList FUNC funcList 
-     ;
+prog: { currClass = ClasseID.VarGlobal; } listaDeclaracoes FUNC listaFuncoes 
+    ;
 
-declList : declList decl
-        |                      
-        ;
+listaDeclaracoes: listaDeclaracoes declaracao
+                |                      
+                ;
 
-funcList : funcList func   
-      |                      
-      ;   
+listaFuncoes: listaFuncoes funcao   
+            |                      
+            ;   
 
-decl : type { currentType = (TS_entry)$1;}  TArray Lid ';' 
-      | declStruct 
-     ;
+//Ou declaracao de Structs ou declaracao de Arrays
+declaracao: type { currentType = (TS_entry)$1; } TArray Lid ';' 
+          | declaracaoStruct 
+          ;
 
-declStruct : STRUCT IDENT '{' listaCampos '}' ';'
-              { TS_entry Tp_New =  new TS_entry($2, null, ClasseID.NomeStruct);
-                ts.insert(Tp_New);
-              }
+declaracaoStruct: STRUCT IDENT '{' listaCampos '}' ';'
+                  { TS_entry Tp_New =  new TS_entry($2, null, ClasseID.NomeStruct);
+                    ts.insert(Tp_New);
+                  }
+                ;
 
-listaCampos : listaCampos decl
-            |
-            ;
+listaCampos: listaCampos declaracao
+          |
+          ;
 
-func : typeRet IDENT '(' listaParam ')' declList '{'  listacmd '}'
-              {
-                TS_entry Tp_New =  new TS_entry($2, currentType, ClasseID.NomeFuncao);
-                ts.insert(Tp_New);
-              }
-     | main
-     ;
-
-typeRet : type { currentType = (TS_entry)$1;}
-        | VOID { currentType = new TS_entry("?", null, ClasseID.TipoBase);}
-        ;
-
-listaParam : param ';' listaParam
-           | param
-           |
-           ;
-
-param : type IDENT 
+/*Declaracao de funcoes
+  $$       $1    $2   $3      $4     $5     $6    $7    $8     $9 */
+funcao: typeRet IDENT '(' listaParam ')' listaDeclaracoes '{' listacmd '}'
+        {
+          //Cria uma nova entrada na tabeka de uma funcao
+          //                             (IDENT funcao, tipo da funcao, classe dela)
+          //System.out.println("funcao: -> currentType: "+currentType);
+          //System.out.println("id atual: "+currentType.getId());
+          TS_entry Tp_New =  new TS_entry($2, currentType, ClasseID.NomeFuncao);
+          ts.insert(Tp_New);
+        }
+      | main
       ;
 
-TArray : '[' NUM ']' TArray 
-         { currentType = new TS_entry("?", Tp_ARRAY, currClass, $2, currentType); }
-       |   
-       ;     
+/* Tipo de retorno das funcoes
+  $$       $1    */
+typeRet: type 
+        { 
+          //System.out.println("Antes -> currentType: "+currentType);
+          currentType = (TS_entry)$1;
+          //System.out.println("Depois -> currentType: "+currentType);
+        }
+      | VOID 
+        { 
+          //System.out.println("Antes -> currentType: "+currentType);
+          currentType = new TS_entry("void", null, ClasseID.TipoBase);
+          //System.out.println("Depois -> currentType: "+currentType);
+        }
+      ;
 
+listaParam: param ';' listaParam
+          | param
+          |
+          ;
+
+param: type IDENT 
+    ;
+
+TArray: '[' NUM ']' TArray 
+        { currentType = new TS_entry("?", Tp_ARRAY, currClass, $2, currentType); }
+      |   
+      ;     
+
+//Lista de identificadores para o array
 Lid : Lid  ',' id 
     | id  
     ;
 
-id : IDENT   { TS_entry nodo = ts.pesquisa($1);
-                  if (nodo != null) 
-                      yyerror("(sem) variavel >" + $1 + "< jah declarada");
-                  else 
-                    ts.insert(new TS_entry($1, currentType, currClass)); 
-             }
+//O que eh cada identificador do array
+id: IDENT
+    { 
+      TS_entry nodo = ts.pesquisa($1);
+      if (nodo != null) {
+        yyerror("(sem) variavel >" + $1 + "< jah declarada");
+      } else { 
+        ts.insert(new TS_entry($1, currentType, currClass));
+      } 
+    }
+  ;
+
+type: INT    { $$ = Tp_INT; }
+    | DOUBLE { $$ = Tp_DOUBLE; }
+    | BOOL   { $$ = Tp_BOOL; }   
+    | IDENT  
+      { 
+        //Pesquisa se esse IDENT ta na tabela e ele pode servir como tipo de variavel (soh STRUCT)
+        TS_entry nodo = ts.pesquisa($1);
+        // if(nodo != null && nodo.getClasse().equals(ClasseID.NomeStruct))
+        if(nodo != null)
+          $$ = nodo;
+      }
     ;
 
-type : INT    { $$ = Tp_INT; }
-     | DOUBLE { $$ = Tp_DOUBLE; }
-     | BOOL   { $$ = Tp_BOOL; }   
-     | IDENT  { 
-                TS_entry nodo = ts.pesquisa($1);
-                // if(nodo != null && nodo.getClasse().equals(ClasseID.NomeStruct))
-                if(nodo != null)
-                  $$ = nodo;
-
-              }
-     ;
-
-main :  VOID MAIN '(' ')' declList bloco ;
+main :  VOID MAIN '(' ')' listaDeclaracoes bloco ;
 
 bloco : '{' listacmd '}';
 
 listacmd : listacmd cmd
         |
          ;
-
-cmd :  IDENT '=' exp ';' { 
-                          TS_entry nodo = ts.pesquisa($1);
-                          if (nodo == null) {
-                            yyerror("(sem) var <" + $1 + "> nao declarada"); 
-                            //$$ = Tp_ERRO;  
-                          }  
-                          else{   
-                            
-                            validaTipo(ATRIB, nodo.getTipo(), (TS_entry)$3);} 
-                          }
-      | IF  '(' exp ')'   {  if ( ((TS_entry)$3) != Tp_BOOL) 
-                              yyerror("(sem) expressão (if) deve ser lógica "+((TS_entry)$3).getTipo());
-                             }  
-             cmd     
-       ;
-      
-      | IDENT '(' ')' ';' {
-                            TS_entry nodo = ts.pesquisa($1);
-                            if (nodo == null) {
-                              yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
-                              // $$ = Tp_ERRO;  
-                            }  
-                          }
-
-      | IDENT '(' listaExp ')' ';' {
-                            TS_entry nodo = ts.pesquisa($1);
-                            if (nodo == null) {
-                              yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
-                              // $$ = Tp_ERRO;  
-                            }  
-                          }
+//$$    $1    $2  $3
+cmd : IDENT '=' exp ';' 
+      {
+        TS_entry nodo = ts.pesquisa($1);
+        if (nodo == null) {
+          yyerror("(sem) var <" + $1 + "> nao declarada"); 
+          //$$ = Tp_ERRO;  
+        } else{   
+          validaTipo(ATRIB, nodo.getTipo(), (TS_entry)$3);
+        } 
+      }
+    
+    | IF '(' exp ')' 
+      {  
+        if ( ((TS_entry)$3) != Tp_BOOL){
+          yyerror("(sem) expressão (if) deve ser lógica "+((TS_entry)$3).getTipo());
+        }
+      } cmd
+    
+    | IDENT '(' ')' ';' 
+      {
+        TS_entry nodo = ts.pesquisa($1);
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
+          //$$ = Tp_ERRO;  //Nao precisa, ja que nao retorna nada
+        }  
+      }
+    
+    | IDENT '(' listaExp ')' ';' 
+      {
+        TS_entry nodo = ts.pesquisa($1);
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
+          //$$ = Tp_ERRO;  //Nao precisa, ja que nao retorna nada  
+        }  
+      }
 
 exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp '*' exp { $$ = validaTipo('*', (TS_entry)$1, (TS_entry)$3); }  
@@ -138,44 +168,56 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); } 
     | NUM         { $$ = Tp_INT; }      
     | '(' exp ')' { $$ = $2; }
-    | IDENT       { TS_entry nodo = ts.pesquisa($1);
-                    if (nodo == null) {
-                       yyerror("(sem) var <" + $1 + "> nao declarada"); 
-                       $$ = Tp_ERRO;    
-                       }           
-                    else
-                        $$ = nodo.getTipo();
-                  }  
-     | IDENT '(' ')'  { TS_entry nodo = ts.pesquisa($1);
-                        if (nodo == null) {
-                          yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
-                          //$$ = Tp_ERRO;    
-                        }           
-                        else{
-                          $$ = nodo.getTipo(); //deveria ser o retorno da funcao
-                        }
-                      }
-     | IDENT '(' listaExp ')' {
-                                TS_entry nodo = ts.pesquisa($1);
-                                if (nodo == null) {
-                                  yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
-                                  //$$ = Tp_ERRO;    
-                                }           
-                                else{
-                                  $$ = nodo.getTipo();
-                                }
-                              }
+    | IDENT // VARIAVEL
+      { TS_entry nodo = ts.pesquisa($1); // Pesquisa nome da VARIAVEL na tabela!
+        if (nodo == null) {
+          yyerror("(sem) variavel <" + $1 + "> nao declarada"); 
+          $$ = Tp_ERRO; //Precisa disso      
+        } else {
+          $$ = nodo.getTipo();
+        }
+      } 
 
-     | exp '.' exp  { $$ = null; }
- 
-     | exp '[' exp ']'  {  if ((TS_entry)$3 != Tp_INT) 
-                              yyerror("(sem) indexador não é numérico ");
-                           else 
-                               if (((TS_entry)$1).getTipo() != Tp_ARRAY)
-                                  yyerror("(sem) elemento não indexado ");
-                               else 
-                                  $$ = ((TS_entry)$1).getTipoBase();
-                         } 
+    | IDENT '(' ')'  //FUNCAO sem parametros
+      { TS_entry nodo = ts.pesquisa($1); // Pesquisa nome da FUNCAO na tabela!
+        if (nodo == null) {
+          System.out.println("EXP: FUNCAO SEM PARAM");
+          yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
+          $$ = Tp_ERRO; //Precisa disso     
+        } else {
+          $$ = nodo.getTipo();
+        }
+      }
+
+    | IDENT '(' listaExp ')' //FUNCAO com parametros
+      { TS_entry nodo = ts.pesquisa($1); // Pesquisa nome da FUNCAO na tabela!
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
+          $$ = Tp_ERRO; //Precisa disso  
+        } else {
+          $$ = nodo.getTipo();
+        }
+      } 
+
+    | exp '.' exp 
+      { 
+        $$ = null; 
+      }
+    // $1 $2  $3
+    | exp '[' exp ']' 
+      {  
+        if ((TS_entry)$3 != Tp_INT) {
+          yyerror("(sem) indexador não é numérico! ");
+        } else {
+          if (((TS_entry)$1).getTipo() != Tp_ARRAY) {
+            yyerror("(sem) elemento não pode ser indexado! ");
+          } else {
+            //  Se o $1(exp) eh um array, e o $3 eh numerico, entao acessa o array e retorna o
+            // tipo dos elementos que estao neste array
+            $$ = ((TS_entry)$1).getTipoBase(); 
+          }                      
+        }
+      }
     ;
 
 listaExp : listaExp ',' exp

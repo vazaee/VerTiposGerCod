@@ -328,19 +328,19 @@ null,null,null,null,null,null,null,null,"IDENT","INT","DOUBLE","BOOL","NUM",
 final static String yyrule[] = {
 "$accept : prog",
 "$$1 :",
-"prog : $$1 declList FUNC funcList",
-"declList : declList decl",
-"declList :",
-"funcList : funcList func",
-"funcList :",
+"prog : $$1 listaDeclaracoes FUNC listaFuncoes",
+"listaDeclaracoes : listaDeclaracoes declaracao",
+"listaDeclaracoes :",
+"listaFuncoes : listaFuncoes funcao",
+"listaFuncoes :",
 "$$2 :",
-"decl : type $$2 TArray Lid ';'",
-"decl : declStruct",
-"declStruct : STRUCT IDENT '{' listaCampos '}' ';'",
-"listaCampos : listaCampos decl",
+"declaracao : type $$2 TArray Lid ';'",
+"declaracao : declaracaoStruct",
+"declaracaoStruct : STRUCT IDENT '{' listaCampos '}' ';'",
+"listaCampos : listaCampos declaracao",
 "listaCampos :",
-"func : typeRet IDENT '(' listaParam ')' declList '{' listacmd '}'",
-"func : main",
+"funcao : typeRet IDENT '(' listaParam ')' listaDeclaracoes '{' listacmd '}'",
+"funcao : main",
 "typeRet : type",
 "typeRet : VOID",
 "listaParam : param ';' listaParam",
@@ -356,7 +356,7 @@ final static String yyrule[] = {
 "type : DOUBLE",
 "type : BOOL",
 "type : IDENT",
-"main : VOID MAIN '(' ')' declList bloco",
+"main : VOID MAIN '(' ')' listaDeclaracoes bloco",
 "bloco : '{' listacmd '}'",
 "listacmd : listacmd cmd",
 "listacmd :",
@@ -380,7 +380,7 @@ final static String yyrule[] = {
 "listaExp : exp",
 };
 
-//#line 186 "exemploSem.y"
+//#line 227 "exemploSem.y"
 
   private Yylex lexer;
 
@@ -669,181 +669,200 @@ case 1:
 { currClass = ClasseID.VarGlobal; }
 break;
 case 7:
-//#line 33 "exemploSem.y"
-{ currentType = (TS_entry)val_peek(0).obj;}
+//#line 34 "exemploSem.y"
+{ currentType = (TS_entry)val_peek(0).obj; }
 break;
 case 10:
-//#line 38 "exemploSem.y"
+//#line 39 "exemploSem.y"
 { TS_entry Tp_New =  new TS_entry(val_peek(4).sval, null, ClasseID.NomeStruct);
-                ts.insert(Tp_New);
-              }
+                    ts.insert(Tp_New);
+                  }
 break;
 case 13:
-//#line 47 "exemploSem.y"
+//#line 51 "exemploSem.y"
 {
-                TS_entry Tp_New =  new TS_entry(val_peek(7).sval, currentType, ClasseID.NomeFuncao);
-                ts.insert(Tp_New);
-              }
+          /*Cria uma nova entrada na tabeka de uma funcao*/
+          /*                             (IDENT funcao, tipo da funcao, classe dela)*/
+          /*System.out.println("funcao: -> currentType: "+currentType);*/
+          /*System.out.println("id atual: "+currentType.getId());*/
+          TS_entry Tp_New =  new TS_entry(val_peek(7).sval, currentType, ClasseID.NomeFuncao);
+          ts.insert(Tp_New);
+        }
 break;
 case 15:
-//#line 54 "exemploSem.y"
-{ currentType = (TS_entry)val_peek(0).obj;}
+//#line 65 "exemploSem.y"
+{ 
+          /*System.out.println("Antes -> currentType: "+currentType);*/
+          currentType = (TS_entry)val_peek(0).obj;
+          /*System.out.println("Depois -> currentType: "+currentType);*/
+        }
 break;
 case 16:
-//#line 55 "exemploSem.y"
-{ currentType = new TS_entry("?", null, ClasseID.TipoBase);}
+//#line 71 "exemploSem.y"
+{ 
+          /*System.out.println("Antes -> currentType: "+currentType);*/
+          currentType = new TS_entry("void", null, ClasseID.TipoBase);
+          /*System.out.println("Depois -> currentType: "+currentType);*/
+        }
 break;
 case 21:
-//#line 67 "exemploSem.y"
+//#line 87 "exemploSem.y"
 { currentType = new TS_entry("?", Tp_ARRAY, currClass, val_peek(2).ival, currentType); }
 break;
 case 25:
-//#line 75 "exemploSem.y"
-{ TS_entry nodo = ts.pesquisa(val_peek(0).sval);
-                  if (nodo != null) 
-                      yyerror("(sem) variavel >" + val_peek(0).sval + "< jah declarada");
-                  else 
-                    ts.insert(new TS_entry(val_peek(0).sval, currentType, currClass)); 
-             }
+//#line 98 "exemploSem.y"
+{ 
+      TS_entry nodo = ts.pesquisa(val_peek(0).sval);
+      if (nodo != null) {
+        yyerror("(sem) variavel >" + val_peek(0).sval + "< jah declarada");
+      } else { 
+        ts.insert(new TS_entry(val_peek(0).sval, currentType, currClass));
+      } 
+    }
 break;
 case 26:
-//#line 83 "exemploSem.y"
+//#line 108 "exemploSem.y"
 { yyval.obj = Tp_INT; }
 break;
 case 27:
-//#line 84 "exemploSem.y"
+//#line 109 "exemploSem.y"
 { yyval.obj = Tp_DOUBLE; }
 break;
 case 28:
-//#line 85 "exemploSem.y"
+//#line 110 "exemploSem.y"
 { yyval.obj = Tp_BOOL; }
 break;
 case 29:
-//#line 86 "exemploSem.y"
+//#line 112 "exemploSem.y"
 { 
-                TS_entry nodo = ts.pesquisa(val_peek(0).sval);
-                /* if(nodo != null && nodo.getClasse().equals(ClasseID.NomeStruct))*/
-                if(nodo != null)
-                  yyval.obj = nodo;
-
-              }
+        /*Pesquisa se esse IDENT ta na tabela e ele pode servir como tipo de variavel (soh STRUCT)*/
+        TS_entry nodo = ts.pesquisa(val_peek(0).sval);
+        /* if(nodo != null && nodo.getClasse().equals(ClasseID.NomeStruct))*/
+        if(nodo != null)
+          yyval.obj = nodo;
+      }
 break;
 case 34:
-//#line 103 "exemploSem.y"
-{ 
-                          System.out.println("hl2");
-                          TS_entry nodo = ts.pesquisa(val_peek(3).sval);
-                          if (nodo == null) {
-                            yyerror("(sem) var <" + val_peek(3).sval + "> nao declarada"); 
-                            /*$$ = Tp_ERRO;  */
-                          }  
-                          else{   
-                            
-                            validaTipo(ATRIB, nodo.getTipo(), (TS_entry)val_peek(1).obj);} 
-                          }
+//#line 130 "exemploSem.y"
+{
+        TS_entry nodo = ts.pesquisa(val_peek(3).sval);
+        if (nodo == null) {
+          yyerror("(sem) var <" + val_peek(3).sval + "> nao declarada"); 
+          /*$$ = Tp_ERRO;  */
+        } else{   
+          validaTipo(ATRIB, nodo.getTipo(), (TS_entry)val_peek(1).obj);
+        } 
+      }
 break;
 case 35:
-//#line 114 "exemploSem.y"
-{  if ( ((TS_entry)val_peek(1).obj) != Tp_BOOL) 
-                              yyerror("(sem) expressão (if) deve ser lógica "+((TS_entry)val_peek(1).obj).getTipo());
-                             }
+//#line 141 "exemploSem.y"
+{  
+        if ( ((TS_entry)val_peek(1).obj) != Tp_BOOL){
+          yyerror("(sem) expressão (if) deve ser lógica "+((TS_entry)val_peek(1).obj).getTipo());
+        }
+      }
 break;
 case 37:
-//#line 120 "exemploSem.y"
+//#line 148 "exemploSem.y"
 {
-                            TS_entry nodo = ts.pesquisa(val_peek(3).sval);
-                            if (nodo == null) {
-                              yyerror("(sem) funcao <" + val_peek(3).sval + "> nao declarada"); 
-                              /* $$ = Tp_ERRO;  */
-                            }  
-                          }
+        TS_entry nodo = ts.pesquisa(val_peek(3).sval);
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + val_peek(3).sval + "> nao declarada"); 
+          /*$$ = Tp_ERRO;  //Nao precisa, ja que nao retorna nada*/
+        }  
+      }
 break;
 case 38:
-//#line 128 "exemploSem.y"
+//#line 157 "exemploSem.y"
 {
-                            TS_entry nodo = ts.pesquisa(val_peek(4).sval);
-                            if (nodo == null) {
-                              yyerror("(sem) funcao <" + val_peek(4).sval + "> nao declarada"); 
-                              /* $$ = Tp_ERRO;  */
-                            }  
-                          }
+        TS_entry nodo = ts.pesquisa(val_peek(4).sval);
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + val_peek(4).sval + "> nao declarada"); 
+          /*$$ = Tp_ERRO;  //Nao precisa, ja que nao retorna nada  */
+        }  
+      }
 break;
 case 39:
-//#line 136 "exemploSem.y"
+//#line 165 "exemploSem.y"
 { yyval.obj = validaTipo('+', (TS_entry)val_peek(2).obj, (TS_entry)val_peek(0).obj); }
 break;
 case 40:
-//#line 137 "exemploSem.y"
+//#line 166 "exemploSem.y"
 { yyval.obj = validaTipo('*', (TS_entry)val_peek(2).obj, (TS_entry)val_peek(0).obj); }
 break;
 case 41:
-//#line 138 "exemploSem.y"
+//#line 167 "exemploSem.y"
 { yyval.obj = validaTipo('>', (TS_entry)val_peek(2).obj, (TS_entry)val_peek(0).obj); }
 break;
 case 42:
-//#line 139 "exemploSem.y"
+//#line 168 "exemploSem.y"
 { yyval.obj = validaTipo(AND, (TS_entry)val_peek(2).obj, (TS_entry)val_peek(0).obj); }
 break;
 case 43:
-//#line 140 "exemploSem.y"
+//#line 169 "exemploSem.y"
 { yyval.obj = Tp_INT; }
 break;
 case 44:
-//#line 141 "exemploSem.y"
+//#line 170 "exemploSem.y"
 { yyval.obj = val_peek(1).obj; }
 break;
 case 45:
-//#line 142 "exemploSem.y"
-{ TS_entry nodo = ts.pesquisa(val_peek(0).sval);
-                    if (nodo == null) {
-                       yyerror("(sem) var <" + val_peek(0).sval + "> nao declarada"); 
-                       yyval.obj = Tp_ERRO;    
-                       }           
-                    else
-                        yyval.obj = nodo.getTipo();
-                  }
+//#line 172 "exemploSem.y"
+{ TS_entry nodo = ts.pesquisa(val_peek(0).sval); /* Pesquisa nome da VARIAVEL na tabela!*/
+        if (nodo == null) {
+          yyerror("(sem) variavel <" + val_peek(0).sval + "> nao declarada"); 
+          yyval.obj = Tp_ERRO; /*Precisa disso      */
+        } else {
+          yyval.obj = nodo.getTipo();
+        }
+      }
 break;
 case 46:
-//#line 150 "exemploSem.y"
-{ TS_entry nodo = ts.pesquisa(val_peek(2).sval);
-                        if (nodo == null) {
-                          yyerror("(sem) funcao <" + val_peek(2).sval + "> nao declarada"); 
-                          /*$$ = Tp_ERRO;    */
-                        }           
-                        else{
-                          yyval.obj = nodo.getTipo(); /*deveria ser o retorno da funcao*/
-                        }
-                      }
+//#line 182 "exemploSem.y"
+{ TS_entry nodo = ts.pesquisa(val_peek(2).sval); /* Pesquisa nome da FUNCAO na tabela!*/
+        if (nodo == null) {
+          System.out.println("EXP: FUNCAO SEM PARAM");
+          yyerror("(sem) funcao <" + val_peek(2).sval + "> nao declarada"); 
+          yyval.obj = Tp_ERRO; /*Precisa disso     */
+        } else {
+          yyval.obj = nodo.getTipo();
+        }
+      }
 break;
 case 47:
-//#line 159 "exemploSem.y"
-{
-                                TS_entry nodo = ts.pesquisa(val_peek(3).sval);
-                                if (nodo == null) {
-                                  yyerror("(sem) funcao <" + val_peek(3).sval + "> nao declarada"); 
-                                  /*$$ = Tp_ERRO;    */
-                                }           
-                                else{
-                                  yyval.obj = nodo.getTipo();
-                                }
-                              }
+//#line 193 "exemploSem.y"
+{ TS_entry nodo = ts.pesquisa(val_peek(3).sval); /* Pesquisa nome da FUNCAO na tabela!*/
+        if (nodo == null) {
+          yyerror("(sem) funcao <" + val_peek(3).sval + "> nao declarada"); 
+          yyval.obj = Tp_ERRO; /*Precisa disso  */
+        } else {
+          yyval.obj = nodo.getTipo();
+        }
+      }
 break;
 case 48:
-//#line 170 "exemploSem.y"
-{ yyval.obj = null; }
+//#line 203 "exemploSem.y"
+{ 
+        yyval.obj = null; 
+      }
 break;
 case 49:
-//#line 172 "exemploSem.y"
-{  if ((TS_entry)val_peek(1).obj != Tp_INT) 
-                              yyerror("(sem) indexador não é numérico ");
-                           else 
-                               if (((TS_entry)val_peek(3).obj).getTipo() != Tp_ARRAY)
-                                  yyerror("(sem) elemento não indexado ");
-                               else 
-                                  yyval.obj = ((TS_entry)val_peek(3).obj).getTipoBase();
-                         }
+//#line 208 "exemploSem.y"
+{  
+        if ((TS_entry)val_peek(1).obj != Tp_INT) {
+          yyerror("(sem) indexador não é numérico! ");
+        } else {
+          if (((TS_entry)val_peek(3).obj).getTipo() != Tp_ARRAY) {
+            yyerror("(sem) elemento não pode ser indexado! ");
+          } else {
+            /*  Se o $1(exp) eh um array, e o $3 eh numerico, entao acessa o array e retorna o*/
+            /* tipo dos elementos que estao neste array*/
+            yyval.obj = ((TS_entry)val_peek(3).obj).getTipoBase(); 
+          }                      
+        }
+      }
 break;
-//#line 770 "Parser.java"
+//#line 789 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

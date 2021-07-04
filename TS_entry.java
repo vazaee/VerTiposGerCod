@@ -53,7 +53,7 @@ public class TS_entry
        StringBuilder aux = new StringBuilder("");
         
        aux.append("Id: ");
-       aux.append(String.format("%-10s", id));
+       aux.append(String.format("%-15s", id));
 
        aux.append("\tClasse: ");
        aux.append(classe);
@@ -73,6 +73,8 @@ public class TS_entry
       else if (tipo==Parser.Tp_INT)    return "int"; 
       else if (tipo==Parser.Tp_BOOL)   return "boolean"; 
       else if (tipo==Parser.Tp_DOUBLE)  return "double";
+      //Para poder aparecer 'void' na tabela quando uma funcao for declarada como VOID
+      else if (tipo.getId().equals("void")) return "void";
       else if (tipo.getTipo() != null) return  String.format("array(%d,%s)",
                                                    tipo.nroElementos, 
                                                     tipo2str(tipo.tipoBase));
