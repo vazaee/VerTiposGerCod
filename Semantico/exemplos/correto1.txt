@@ -1,0 +1,31 @@
+int a;
+int b;
+double c;
+
+struct Data{
+   int data;
+}
+
+struct Aluno {
+   int id;
+   Data data;
+}
+
+@functions:
+
+int teste(){
+
+}
+
+int teste2(int m){
+
+}
+
+void main() 
+   int k;
+   {
+      a = teste();
+      b = teste2(a);
+      c = teste();
+      Aluno a;
+   }

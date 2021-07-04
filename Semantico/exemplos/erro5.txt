@@ -1,9 +1,9 @@
-
+int c;
 
 @functions:
 
 void main() {
 
-   Aluno a;
+   c = a;
 
 }
