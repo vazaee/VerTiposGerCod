@@ -1,0 +1,13 @@
+struct Aluno{
+    int idate;
+    double g1;
+}
+
+@functions:
+
+void main()
+    Aluno a;
+    double c;
+    {
+    c = a;
+}

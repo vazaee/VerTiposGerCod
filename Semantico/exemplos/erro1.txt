@@ -2,8 +2,7 @@
 
 @functions:
 
-void main() {
-
+void main() 
+{
    Aluno a;
-
 }

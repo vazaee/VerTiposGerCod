@@ -13,7 +13,8 @@
 #
 
 JFLEX  = java -jar JFlex.jar 
-BYACCJ = ./yacc.linux -tv -J
+#BYACCJ = ./yacc.linux -tv -J
+BYACCJ = yacc -tv -J
 JAVAC  = javac
 
 # targets:

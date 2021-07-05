@@ -2,8 +2,7 @@ int c;
 
 @functions:
 
-void main() {
-
+void main() 
+{
    c = a;
-
 }

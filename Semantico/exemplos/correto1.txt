@@ -4,28 +4,34 @@ double c;
 
 struct Data{
    int data;
-}
+};
 
 struct Aluno {
    int id;
-   Data data;
-}
+   Data dataMatricula;
+};
 
 @functions:
 
-int teste(){
-
+int funcInt(){
 }
 
-int teste2(int m){
+int funcIntParam(int x){
+}
+
+double funcDoubleParam(double x){
+}
+
+void funcVoid(){
 
 }
 
 void main() 
-   int k;
+   double k;
+   Aluno aluno;
+   int x;
    {
-      a = teste();
-      b = teste2(a);
-      c = teste();
-      Aluno a;
+      a = funcInt();
+      b = funcIntParam(a);
+      k = funcDoubleParam();
    }

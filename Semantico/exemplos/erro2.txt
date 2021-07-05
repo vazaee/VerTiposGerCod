@@ -6,8 +6,7 @@ int teste(){
 
 }
 
-void main() {
-
+void main() 
+{
    a = teste();
-
 }

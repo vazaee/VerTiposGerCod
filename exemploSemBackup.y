@@ -49,53 +49,43 @@ listaCampos: listaCampos declaracao
           |
           ;
 
-funcao: funcaoComParam
-      | funcaoSemParam
+/*Declaracao de funcoes
+  $$       $1    $2   $3      $4     $5     $6    $7    $8     $9 */
+funcao: typeRet IDENT '(' listaParam ')' listaDeclaracoes '{' listacmd '}'
+        {
+          //Cria uma nova entrada na tabeka de uma funcao
+          //                             (IDENT funcao, tipo da funcao, classe dela)
+          //System.out.println("funcao: -> currentType: "+currentType);
+          //System.out.println("id atual: "+currentType.getId());
+          TS_entry Tp_New =  new TS_entry($2, currentType, ClasseID.NomeFuncao);
+          ts.insert(Tp_New);
+        }
       | main
       ;
-
-/*Declaracao de funcao com param
-  $$       $1    $2   $3      $4     $5     $6    $7    $8     $9 */
-funcaoComParam: typeRet IDENT '(' listaParam ')' listaDeclaracoes '{' listacmd '}'
-                {
-                  //Cria uma nova entrada na tabeka de uma funcao
-                  //               (IDENT funcao, tipo da funcao, classe dela)
-                  TS_entry Tp_New =  new TS_entry($2, currentType, ClasseID.NomeFuncao);
-                  ts.insert(Tp_New);
-                }
-              ;
-
-listaParam: param ';' listaParam
-          | param
-          ;
-
-param: type IDENT 
-    ;
-
-/*Declaracao de funcao sem param
-  $$       $1    $2   $3      $4     $5     $6    $7    $8     $9 */
-funcaoSemParam: typeRet IDENT '(' ')' listaDeclaracoes '{' listacmd '}'
-                {
-                  //Cria uma nova entrada na tabeka de uma funcao
-                  //                             (IDENT funcao, tipo da funcao, classe dela)
-                  TS_entry Tp_New =  new TS_entry($2, currentType, ClasseID.NomeFuncao);
-                  ts.insert(Tp_New);
-                }
-              ;
 
 /* Tipo de retorno das funcoes
   $$       $1    */
 typeRet: type 
         { 
+          //System.out.println("Antes -> currentType: "+currentType);
           currentType = (TS_entry)$1;
+          //System.out.println("Depois -> currentType: "+currentType);
         }
       | VOID 
         { 
+          //System.out.println("Antes -> currentType: "+currentType);
           currentType = new TS_entry("void", null, ClasseID.TipoBase);
+          //System.out.println("Depois -> currentType: "+currentType);
         }
       ;
 
+listaParam: param ';' listaParam
+          | param
+          |
+          ;
 
+param: type IDENT 
+    ;
 
 TArray: '[' NUM ']' TArray 
         { currentType = new TS_entry("?", Tp_ARRAY, currClass, $2, currentType); }
@@ -199,8 +189,6 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
           yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
           $$ = Tp_ERRO; //Precisa disso     
         } else {
-          // Verificar se func IDENT realmente nao precisa de param
-          // #TODO
           $$ = nodo.getTipo();
         }
       }
@@ -211,9 +199,6 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
           yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
           $$ = Tp_ERRO; //Precisa disso  
         } else {
-          // Verificar se func IDENT realmente precisa de param
-          // Verificar se os param quer recebeu eh compativel com os param da IDENT
-          // #TODO
           $$ = nodo.getTipo();
         }
       } 
